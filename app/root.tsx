@@ -1,4 +1,4 @@
-import { Links, LiveReload, Meta, Outlet, Scripts, ScrollRestoration, useCatch } from "remix";
+import { Links, LiveReload, Meta, MetaFunction, Outlet, Scripts, ScrollRestoration, useCatch } from "remix";
 
 import styles from "./tailwind.css";
 
@@ -18,6 +18,16 @@ function App(): JSX.Element {
     </Document>
   );
 }
+
+const meta: MetaFunction = () => {
+  return {
+    title: "Clement Meyer, Fullstack web developer",
+    description: "Delicious shakes",
+    "og:image": "https://www.meyclem.com/meta-image.png",
+    "og:title": "Meyclem",
+    "og:url": "https://www.meyclem.com",
+  };
+};
 
 // https://remix.run/docs/en/v1/api/conventions#errorboundary
 function ErrorBoundary({ error }: { error: Error }): JSX.Element {
@@ -93,5 +103,5 @@ function Layout({ children }: { children: React.ReactNode }): JSX.Element {
   );
 }
 
-export { CatchBoundary, ErrorBoundary, links };
+export { CatchBoundary, ErrorBoundary, links, meta };
 export default App;
