@@ -22,7 +22,7 @@ function App(): JSX.Element {
 const meta: MetaFunction = () => {
   return {
     title: "Clement Meyer, Fullstack web developer",
-    description: "Delicious shakes",
+    description: "Clement Meyer, Fullstack web developer",
     "og:image": "https://www.meyclem.com/meta-image.png",
     "og:title": "Meyclem",
     "og:url": "https://www.meyclem.com",

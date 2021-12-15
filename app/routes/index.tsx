@@ -1,13 +1,3 @@
-import type { MetaFunction } from "remix";
-
-// https://remix.run/api/conventions#meta
-const meta: MetaFunction = () => {
-  return {
-    title: "Meyclem's",
-    description: "Welcome to my pages",
-  };
-};
-
 const contacts = [
   { title: "github", href: "https://github.com/meyclem" },
   {
@@ -48,5 +38,3 @@ export default function Index(): JSX.Element {
     </div>
   );
 }
-
-export { meta };
