@@ -1,0 +1,62 @@
+{
+  "extends": [
+    "eslint:recommended",
+    "prettier",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:prettier/recommended"
+  ],
+  "env": {
+    "browser": true,
+    "es6": true,
+    "node": true
+  },
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module"
+  },
+  "plugins": [
+    "prettier",
+    "import",
+    "@typescript-eslint"
+  ],
+  "rules": {
+    "import/order": [
+      "error",
+      {
+        "alphabetize": {
+          "order": "asc",
+          "caseInsensitive": false
+        },
+        "newlines-between": "always",
+        "groups": [
+          ["builtin", "external"],
+          ["internal", "parent", "sibling", "index"]
+        ]
+      }
+    ],
+    "import/group-exports": "error",
+    "import/exports-last": "error",
+    "prettier/prettier": [
+      "error",
+      {
+        "arrowParens": "always",
+        "trailingComma": "all"
+      }
+    ],
+    "comma-dangle": ["error", "always-multiline"],
+    "@typescript-eslint/camelcase": "off",
+    "@typescript-eslint/no-unused-vars": [
+      "error", { "argsIgnorePattern": "^_" }
+    ],
+    "@typescript-eslint/explicit-function-return-type": [
+      "error",
+      { "allowExpressions": true }
+    ],
+    "react/prop-types": 0
+  },
+  "settings": {
+    "react": { "version": "detect" }
+  }
+}
