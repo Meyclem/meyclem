@@ -1,10 +1,9 @@
-module.exports = {
-  mode: "jit",
+/** @type {import('tailwindcss').Config} */
+export default {
   content: ["./app/**/*.{ts,tsx}"],
-  darkMode: "media", // or 'media' or 'class'
+  darkMode: "media",
   theme: {
     extend: {},
   },
-  variants: {},
   plugins: [],
 };

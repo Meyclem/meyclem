@@ -2,5 +2,5 @@
 .vercel
 node_modules
 /.cache
-**/build
-/app/tailwind.css
+/build
+/public/build
