@@ -1,19 +1,70 @@
-import { renderToString } from "react-dom/server";
-import { RemixServer } from "remix";
-import type { EntryContext } from "remix";
+import type { EntryContext } from "@remix-run/node";
+import { createReadableStreamFromReadable } from "@remix-run/node";
+import { RemixServer } from "@remix-run/react";
+import { isbot } from "isbot";
+import { PassThrough } from "node:stream";
+import { renderToPipeableStream } from "react-dom/server";
+
+const ABORT_DELAY = 5_000;
 
 export default function handleRequest(
   request: Request,
   responseStatusCode: number,
   responseHeaders: Headers,
   remixContext: EntryContext,
-): unknown {
-  const markup = renderToString(<RemixServer context={remixContext} url={request.url} />);
+): Promise<Response> {
+  const userAgent = request.headers.get("user-agent");
 
-  responseHeaders.set("Content-Type", "text/html");
+  return new Promise((resolve, reject) => {
+    let shellRendered = false;
+    const { pipe, abort } = renderToPipeableStream(
+      <RemixServer context={remixContext} url={request.url} abortDelay={ABORT_DELAY} />,
+      {
+        onShellReady(): void {
+          shellRendered = true;
+          const body = new PassThrough();
+          const stream = createReadableStreamFromReadable(body);
 
-  return new Response("<!DOCTYPE html>" + markup, {
-    status: responseStatusCode,
-    headers: responseHeaders,
+          responseHeaders.set("Content-Type", "text/html");
+
+          resolve(
+            new Response(stream, {
+              headers: responseHeaders,
+              status: responseStatusCode,
+            }),
+          );
+
+          pipe(body);
+        },
+        onAllReady(): void {
+          if (isbot(userAgent || "")) {
+            shellRendered = true;
+            const body = new PassThrough();
+            const stream = createReadableStreamFromReadable(body);
+
+            responseHeaders.set("Content-Type", "text/html");
+
+            resolve(
+              new Response(stream, {
+                headers: responseHeaders,
+                status: responseStatusCode,
+              }),
+            );
+
+            pipe(body);
+          }
+        },
+        onShellError(error: unknown): void {
+          reject(error);
+        },
+        onError(error: unknown): void {
+          if (shellRendered) {
+            console.error(error);
+          }
+        },
+      },
+    );
+
+    setTimeout(abort, ABORT_DELAY);
   });
 }

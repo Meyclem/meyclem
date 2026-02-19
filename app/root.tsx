@@ -1,13 +1,12 @@
-import { Links, LiveReload, Meta, MetaFunction, Outlet, Scripts, ScrollRestoration, useCatch } from "remix";
+import type { LinksFunction, MetaFunction } from "@remix-run/node";
+import { Links, Meta, Outlet, Scripts, ScrollRestoration, isRouteErrorResponse, useRouteError } from "@remix-run/react";
 
-import styles from "./tailwind.css";
+import stylesheet from "./tailwind.css?url";
 
-function links(): { rel: string; href: string }[] {
-  return [
-    { rel: "stylesheet", href: styles },
-    { rel: "icon", href: "/favicon.svg" },
-  ];
-}
+const links: LinksFunction = () => [
+  { rel: "stylesheet", href: stylesheet },
+  { rel: "icon", href: "/favicon.svg" },
+];
 
 function App(): JSX.Element {
   return (
@@ -20,56 +19,65 @@ function App(): JSX.Element {
 }
 
 const meta: MetaFunction = () => {
-  return {
-    title: "Clement Meyer, Fullstack web developer",
-    description: "Clement Meyer, Fullstack web developer",
-    "og:image": "https://www.meyclem.com/meta-image.png",
-    "og:title": "Meyclem",
-    "og:url": "https://www.meyclem.com",
-  };
+  return [
+    { title: "Clement Meyer, Fullstack web developer" },
+    { name: "description", content: "Clement Meyer, Fullstack web developer" },
+    { property: "og:image", content: "https://www.meyclem.com/meta-image.png" },
+    { property: "og:title", content: "Meyclem" },
+    { property: "og:url", content: "https://www.meyclem.com" },
+  ];
 };
 
-// https://remix.run/docs/en/v1/api/conventions#errorboundary
-function ErrorBoundary({ error }: { error: Error }): JSX.Element {
-  console.error(error);
+function ErrorBoundary(): JSX.Element {
+  const error = useRouteError();
+
+  if (isRouteErrorResponse(error)) {
+    let message;
+    switch (error.status) {
+      case 401:
+        message = <p>Oops! Looks like you tried to visit a page that you do not have access to.</p>;
+        break;
+      case 404:
+        message = <p>Oops! Looks like you tried to visit a page that does not exist.</p>;
+        break;
+      default:
+        throw new Error(error.data || error.statusText);
+    }
+
+    return (
+      <Document title={`${error.status} ${error.statusText}`}>
+        <Layout>
+          <h1>
+            {error.status}: {error.statusText}
+          </h1>
+          {message}
+        </Layout>
+      </Document>
+    );
+  }
+
+  if (error instanceof Error) {
+    console.error(error);
+    return (
+      <Document title="Error!">
+        <Layout>
+          <div>
+            <h1>There was an error</h1>
+            <p>{error.message}</p>
+            <hr />
+            <p>Hey, developer, you should replace this with what you want your users to see.</p>
+          </div>
+        </Layout>
+      </Document>
+    );
+  }
+
   return (
     <Document title="Error!">
       <Layout>
         <div>
-          <h1>There was an error</h1>
-          <p>{error.message}</p>
-          <hr />
-          <p>Hey, developer, you should replace this with what you want your users to see.</p>
+          <h1>Unknown error</h1>
         </div>
-      </Layout>
-    </Document>
-  );
-}
-
-// https://remix.run/docs/en/v1/api/conventions#catchboundary
-function CatchBoundary(): JSX.Element {
-  const caught = useCatch();
-
-  let message;
-  switch (caught.status) {
-    case 401:
-      message = <p>Oops! Looks like you tried to visit a page that you do not have access to.</p>;
-      break;
-    case 404:
-      message = <p>Oops! Looks like you tried to visit a page that does not exist.</p>;
-      break;
-
-    default:
-      throw new Error(caught.data || caught.statusText);
-  }
-
-  return (
-    <Document title={`${caught.status} ${caught.statusText}`}>
-      <Layout>
-        <h1>
-          {caught.status}: {caught.statusText}
-        </h1>
-        {message}
       </Layout>
     </Document>
   );
@@ -89,7 +97,6 @@ function Document({ children, title }: { children: React.ReactNode; title?: stri
         {children}
         <ScrollRestoration />
         <Scripts />
-        {process.env.NODE_ENV === "development" && <LiveReload />}
       </body>
     </html>
   );
@@ -103,5 +110,5 @@ function Layout({ children }: { children: React.ReactNode }): JSX.Element {
   );
 }
 
-export { CatchBoundary, ErrorBoundary, links, meta };
+export { ErrorBoundary, links, meta };
 export default App;
