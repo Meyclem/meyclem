@@ -4,7 +4,6 @@ const contacts = [
     title: "linkedin",
     href: "https://www.linkedin.com/in/clement-meyer-2715b554/",
   },
-  { title: "email", href: "mailto:meyclem@gmail.com" },
 ];
 
 // https://remix.run/guides/routing#index-routes
